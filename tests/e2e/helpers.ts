@@ -33,6 +33,7 @@ export async function runCli(
     const { stdout, stderr } = await exec(runtime, [MAIN, ...args], {
       cwd: ROOT,
       timeout,
+      maxBuffer: 16 * 1024 * 1024, // 16 MB — `opencli list -f json` with 100+ sites can exceed the 1 MB default
       env: {
         ...process.env,
         // Prevent chalk colors from polluting test assertions
