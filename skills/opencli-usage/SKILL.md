@@ -8,10 +8,11 @@ allowed-tools: Bash(opencli:*), Read
 
 OpenCLI turns any website, Electron desktop app, or external CLI into a uniform `opencli <site> <command>` surface that agents can drive without screen-scraping. This skill is the orientation layer — once you know what you want to do, load one of the specialized skills below.
 
-## The three pillars
+## The four pillars
 
 - **Adapter commands** — `opencli <site> <command> [...]`. Built-in adapters live in `clis/`, user adapters in `~/.opencli/clis/`. Each is backed by a strategy (`PUBLIC | COOKIE | INTERCEPT | UI | LOCAL`) that tells you whether a Chrome session is needed.
-- **Browser driving** — `opencli browser *` subcommands (`open`, `state`, `click`, `type`, `select`, `find`, `extract`, `network`, …) for ad-hoc interaction and scraping when no adapter covers the task. See `opencli-browser`.
+- **Playwright CLI** ⭐ 首选 — `opencli playwright navigate|snapshot|click|type|evaluate|screenshot`，无需 Chrome 扩展，**daemon 模式保持 Chrome 进程常驻**，跨命令复用浏览器状态。**CLI 失效时可用 Playwright MCP 工具作为备选。** 安装：`claude mcp add playwright -- npx -y @playwright/mcp@latest`。**⚠️ 禁止创建临时脚本封装。**
+- **Browser driving**（备选） — `opencli browser *` subcommands (`open`, `state`, `click`, `type`, `select`, `find`, `extract`, `network`, …) for ad-hoc interaction and scraping when no adapter covers the task **and Playwright cannot fulfill the need** (e.g. 需要已登录 Chrome 的 Cookie 态). See `opencli-browser`.
 - **Current-tab binding** — `opencli browser <session> bind` attaches the Chrome tab the user already opened/logged into to that browser session. Follow-up commands use `opencli browser <session> ...`. See `opencli-browser` before using it; bound sessions still block tab mutation.
 - **External CLI passthrough** — `opencli gh`, `opencli docker`, `opencli vercel`, etc. Managed via `opencli external install <name>` (auto-install from `external-clis.yaml`) or `opencli external register <name>` (bring your own).
 
@@ -149,7 +150,9 @@ opencli completion bash   # also: zsh, fish
 
 | If you're about to… | Load this skill |
 |---------------------|-----------------|
-| Drive a live browser ad-hoc (no adapter available, or prototyping) | `opencli-browser` |
+| Drive a live browser ad-hoc (首选，无需扩展) | Playwright CLI（`opencli playwright navigate|snapshot|click|...`） |
+| Drive a live browser ad-hoc (CLI失效时的备选) | Playwright MCP（直接调用 `browser_navigate`、`browser_snapshot` 等） |
+| Drive a live browser ad-hoc (备选，需 Chrome 扩展 + Cookie) | `opencli-browser` |
 | Write a new adapter, or add a command to an existing site | `opencli-adapter-author` |
 | Fix a broken adapter after a command failure | `opencli-autofix` |
 | Route a search / lookup / research request to the right adapter | `smart-search` |

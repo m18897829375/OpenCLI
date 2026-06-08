@@ -22711,6 +22711,245 @@
     "navigateBefore": "https://www.pixiv.net"
   },
   {
+    "site": "playwright",
+    "name": "click",
+    "description": "在页面中点击匹配 CSS 选择器的元素，返回点击前后的页面标题变化。",
+    "access": "write",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "页面 URL"
+      },
+      {
+        "name": "selector",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "CSS 选择器，如 button#submit"
+      },
+      {
+        "name": "wait-after",
+        "type": "int",
+        "default": 1000,
+        "required": false,
+        "help": "点击后等待毫秒数，默认 1000"
+      }
+    ],
+    "columns": [
+      "clicked",
+      "selector",
+      "titleBefore",
+      "titleAfter",
+      "urlAfter"
+    ],
+    "type": "js",
+    "modulePath": "playwright/click.js",
+    "sourceFile": "playwright/click.js"
+  },
+  {
+    "site": "playwright",
+    "name": "evaluate",
+    "description": "在页面中执行 JavaScript 表达式（支持箭头函数），返回执行结果。",
+    "access": "read",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "页面 URL"
+      },
+      {
+        "name": "code",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "JS 表达式，如 document.title 或 () => ({...})"
+      }
+    ],
+    "columns": [
+      "url",
+      "result"
+    ],
+    "type": "js",
+    "modulePath": "playwright/evaluate.js",
+    "sourceFile": "playwright/evaluate.js"
+  },
+  {
+    "site": "playwright",
+    "name": "navigate",
+    "description": "打开指定 URL 并返回页面标题、URL 和 HTTP 状态码。daemon 模式保持 Chrome 进程常驻，多步流程复用同一浏览器，MCP 工具作为失效备选。",
+    "access": "read",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "完整 URL（含协议），如 https://example.com"
+      },
+      {
+        "name": "wait-until",
+        "type": "str",
+        "default": "load",
+        "required": false,
+        "help": "页面加载等待策略，默认 load",
+        "choices": [
+          "load",
+          "domcontentloaded",
+          "networkidle"
+        ]
+      }
+    ],
+    "columns": [
+      "url",
+      "title",
+      "status"
+    ],
+    "type": "js",
+    "modulePath": "playwright/navigate.js",
+    "sourceFile": "playwright/navigate.js"
+  },
+  {
+    "site": "playwright",
+    "name": "screenshot",
+    "description": "截取页面截图保存为 PNG，支持全页和元素级截图。",
+    "access": "read",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "页面 URL"
+      },
+      {
+        "name": "output",
+        "type": "str",
+        "required": false,
+        "help": "输出路径，默认 ./screenshot-<timestamp>.png"
+      },
+      {
+        "name": "full-page",
+        "type": "boolean",
+        "default": false,
+        "required": false,
+        "help": "截取整页（含滚动区域）"
+      },
+      {
+        "name": "selector",
+        "type": "str",
+        "required": false,
+        "help": "CSS 选择器，仅截取匹配元素"
+      }
+    ],
+    "columns": [
+      "url",
+      "title",
+      "file",
+      "width",
+      "height"
+    ],
+    "type": "js",
+    "modulePath": "playwright/screenshot.js",
+    "sourceFile": "playwright/screenshot.js"
+  },
+  {
+    "site": "playwright",
+    "name": "snapshot",
+    "description": "获取指定 URL 页面的无障碍快照（YAML 树结构），可选 CSS 选择器限定范围。",
+    "access": "read",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "页面 URL"
+      },
+      {
+        "name": "selector",
+        "type": "str",
+        "required": false,
+        "help": "CSS 选择器，仅截取匹配元素（可选）"
+      }
+    ],
+    "columns": [
+      "url",
+      "snapshot"
+    ],
+    "type": "js",
+    "modulePath": "playwright/snapshot.js",
+    "sourceFile": "playwright/snapshot.js"
+  },
+  {
+    "site": "playwright",
+    "name": "type",
+    "description": "在页面输入框（CSS 选择器）中输入文本，可选提交（按 Enter）。",
+    "access": "write",
+    "domain": "localhost",
+    "strategy": "local",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "页面 URL"
+      },
+      {
+        "name": "selector",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "输入框 CSS 选择器，如 input[name=q]"
+      },
+      {
+        "name": "text",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "要输入的文本"
+      },
+      {
+        "name": "submit",
+        "type": "boolean",
+        "default": false,
+        "required": false,
+        "help": "输入后按 Enter 提交"
+      }
+    ],
+    "columns": [
+      "typed",
+      "selector",
+      "text",
+      "submitted",
+      "urlAfter"
+    ],
+    "type": "js",
+    "modulePath": "playwright/type.js",
+    "sourceFile": "playwright/type.js"
+  },
+  {
     "site": "powerchina",
     "name": "search",
     "description": "搜索中国电建阳光采购公告",

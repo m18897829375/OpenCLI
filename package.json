@@ -87,6 +87,9 @@
     "undici": "^6.25.0",
     "ws": "^8.18.0"
   },
+  "optionalDependencies": {
+    "playwright": "^1.55.0"
+  },
   "devDependencies": {
     "@types/jsdom": "^27.0.0",
     "@types/js-yaml": "^4.0.9",

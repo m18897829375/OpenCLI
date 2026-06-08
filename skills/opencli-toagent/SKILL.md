@@ -102,7 +102,17 @@ which <cli-name>  # 验证
 
 #### 9. 禁止编写脚本
 
-使用 CLI 工具时，**只用已有的命令行工具**（`pwc`、`opencli`、系统命令）完成任务。**不创建临时脚本文件**，不写 `.js`/`.py`/`.sh` 等辅助脚本。
+使用 CLI 工具时，**只用已有的命令行工具**（`opencli`、`pwc`、系统命令）完成任务。**不创建临时脚本文件**，不写 `.js`/`.py`/`.sh` 等辅助脚本。CLI 工具失效时可使用 Playwright MCP 工具作为备选。
+
+**特别强调**：Playwright 操作必须通过 `opencli playwright <command>` CLI 命令完成。禁止编写 Node.js/Python 脚本来封装 Playwright 调用。例如：
+- ✅ `opencli playwright navigate https://example.com` → CLI 命令直接使用
+- ✅ `opencli playwright click https://example.com button.submit` → CLI 命令直接使用
+- ❌ `node scrape.js` → 禁止编写临时脚本
+
+**CLI 命令失效时**可使用 MCP 工具作为备选：
+- ✅ `opencli playwright navigate https://example.com` → CLI 命令直接使用
+- ✅ `mcp__playwright__browser_navigate(url="...")` → CLI 失效时备选
+- ❌ `node scrape.js` → 禁止编写临时脚本
 
 如果 CLI 工具本身的命令无法完成任务，说明工具设计有缺陷，需要改进工具。
 
@@ -135,14 +145,15 @@ which <cli-name>  # 验证
   │       模式: daemon 常驻浏览器
   │       示例: bilibili, taobao, twitter
   │       前置条件: 用户先在 Chrome 登录目标网站
+  │       ⚠️ 优先使用 Playwright CLI daemon 模式（`opencli playwright <command>`），Chrome 进程常驻复用，禁止编写临时脚本
   │
   └─ 目标是 MCP 工具？
       └─ L3 MCP → CLI
           技术栈: 取决于 MCP 工具性质
-          - 浏览器类 MCP → daemon 模式（如 pwc）
+          - 浏览器类 MCP → 优先使用 Playwright CLI（`opencli playwright <command>`），CLI 不满足需求时回退到 daemon 模式（如 pwc）或 MCP 工具
           - API 类 MCP → 单次进程（如 search-mcp → cli）
           方法: 分析 MCP 工具列表 → 映射为 CLI 子命令
-          示例: Playwright MCP → pwc
+          示例: Playwright MCP → `opencli playwright navigate`（首选）或 pwc（备选）
 ```
 
 ## 项目结构模式

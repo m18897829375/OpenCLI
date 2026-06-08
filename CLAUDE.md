@@ -6,6 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 OpenCLI 是一个 Node.js CLI 工具，将任意网站转化为命令行接口。通过 Chrome 扩展 + 本地守护进程连接到用户已登录的浏览器，或通过声明式 Pipeline 直接调用 API，实现 `opencli <site> <command>` 式的数据获取与浏览器自动化。
 
+## 内置浏览器工具
+
+浏览器自动化**优先使用 Playwright CLI**，仅在需要登录态 Cookie 时回退到 OpenCLI 浏览器：
+
+| 优先级 | 工具 | 方式 | 需 Chrome 扩展 | 适用场景 |
+|:------:|------|------|:---:|------|
+| ⭐ 首选 | `playwright` CLI | `opencli playwright navigate/snapshot/click/type/evaluate/screenshot` | ❌ | 页面巡检、DOM 快照、表单填写、截图、原型验证 |
+| 备选 | `opencli browser *` | Chrome 扩展 + daemon（selector-first 合约） | ✅ | 需已登录 Cookie 的复杂 DOM 交互 |
+
+Playwright 同时提供 MCP 内置工具（`browser_navigate`, `browser_snapshot` 等），可在 Claude Code 会话内直接调用进行多步交互。
+
+> ⚠️ **禁止编写脚本调用 Playwright**。必须使用 `opencli playwright <command>` CLI 命令，不得创建 `.js`/`.py`/`.sh` 等临时脚本。CLI 工具失效时可使用 MCP 工具（`mcp__playwright__browser_navigate` 等）作为备选。
+
 ## 常用命令
 
 ```bash

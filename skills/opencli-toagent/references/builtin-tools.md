@@ -33,7 +33,7 @@ sinafinance, eastmoney, xueqiu, binance, coingecko, defillama, ths, yahoo-financ
 arxiv, cnki, pubmed, wanfang, dblp, oeis, openalex, openreview, paperreview, rfc, nvd, osv, openfda
 
 ## 工具 / 效率
-wttr, dictionary, rest-countries, endoflife, tvmaze, chess, lichess, geogebra, uisdc, uiverse, web, mdn
+wttr, dictionary, rest-countries, endoflife, tvmaze, chess, lichess, geogebra, uisdc, uiverse, web, mdn, playwright
 
 ## 出行旅游
 ctrip, booking, 12306
@@ -52,3 +52,11 @@ gov-law, gov-policy
 
 ## 其他
 steam, spotify, zlibrary, hf, band, barchart, yahoo, youdao, powerchina, aibase, linkedin-learning, ke, quark, reuters, goproxy, yollomi
+
+## 浏览器自动化（内置工具）
+
+> ⭐ **Playwright CLI 为首选方案**。MCP 工具作为辅助，`opencli browser` 仅用于需登录 Cookie 的场景。
+
+`playwright` ⭐ 首选 — `opencli playwright navigate|snapshot|click|type|evaluate|screenshot`（CLI 适配器，`clis/playwright/`）。daemon 模式保持 Chrome 进程常驻，跨命令复用。**CLI 失效时可用 MCP 工具备选。** 安装: `claude mcp add playwright -- npx -y @playwright/mcp@latest`。**⚠️ 禁止编写脚本封装。**
+
+`opencli browser` 备选 — OpenCLI 原生浏览器驱动（selector-first 合约，需 Chrome + OpenCLI 扩展）。仅在需要已登录 Cookie 时使用。
