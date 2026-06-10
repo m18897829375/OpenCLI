@@ -1,33 +1,31 @@
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { ConfigError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { readConfig, writeConfig, isTunOn, setTun, detectAdapter, testNet } from './utils.js';
+import { getMode, setMode, detectAdapter, testNet } from './utils.js';
 
 cli({
   site: 'v2ray', name: 'off', access: 'write',
-  description: '关闭 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=false，不退出/重启 v2rayN。',
+  description: '关闭 VPN 代理（切换 sing-box 路由模式为 Direct，所有流量直连）。不重启 v2rayN，即时生效。',
   domain: 'localhost', strategy: Strategy.LOCAL, browser: false, args: [],
-  columns: ['action', 'tun_config', 'adapter', 'net'],
+  columns: ['action', 'mode', 'adapter', 'net'],
   func: async () => {
     if (process.platform !== 'win32') throw new ConfigError('仅支持 Windows');
 
-    let cfg, path;
-    try { const r = readConfig(); cfg = r.config; path = r.path; } catch (e) {
-      throw new CommandExecutionError(`读取配置失败: ${e.message}`);
-    }
+    const currentMode = getMode();
+    if (!currentMode) throw new CommandExecutionError('无法连接 sing-box Clash API (127.0.0.1:10814)', '请确认 v2rayN 正在运行且 sing-box 核心已启动');
 
-    if (!isTunOn(cfg)) {
-      const ad = detectAdapter();
+    if (currentMode === 'Direct') {
       const net = testNet('https://www.facebook.com', 5);
-      return [{ action: 'already_off', tun_config: 'false', adapter: ad ? `${ad.name}/${ad.status}` : 'N/A', net: net.reachable ? 'ok' : 'blocked' }];
+      return [{ action: 'already_off', mode: currentMode, adapter: '—', net: net.reachable ? 'ok' : 'blocked' }];
     }
 
-    setTun(cfg, false);
-    try { writeConfig(path, cfg); } catch (e) {
-      throw new CommandExecutionError(`写入配置失败: ${e.message}`);
-    }
-
+    setMode('Direct');
+    const newMode = getMode();
     const ad = detectAdapter();
     const net = testNet('https://www.facebook.com', 5);
-    return [{ action: 'off', tun_config: 'false', adapter: ad ? `${ad.name}/${ad.status}` : 'N/A', net: net.reachable ? 'ok' : 'blocked' }];
+
+    if (newMode === 'Direct') {
+      return [{ action: 'off', mode: newMode, adapter: ad ? `${ad.name}/${ad.status}` : 'N/A', net: net.reachable ? 'ok' : 'blocked' }];
+    }
+    throw new CommandExecutionError(`模式切换失败：当前为 ${newMode || 'unknown'}`);
   },
 });

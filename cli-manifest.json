@@ -31955,7 +31955,7 @@
   {
     "site": "v2ray",
     "name": "off",
-    "description": "关闭 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=false，不退出/重启 v2rayN。",
+    "description": "关闭 VPN 代理（切换 sing-box 路由模式为 Direct，所有流量直连）。不重启 v2rayN，即时生效。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31963,7 +31963,7 @@
     "args": [],
     "columns": [
       "action",
-      "tun_config",
+      "mode",
       "adapter",
       "net"
     ],
@@ -31974,7 +31974,7 @@
   {
     "site": "v2ray",
     "name": "on",
-    "description": "开启 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=true，不退出/重启 v2rayN。",
+    "description": "开启 VPN 代理（切换 sing-box 路由模式为 Rule）。不重启 v2rayN，即时生效。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31982,7 +31982,7 @@
     "args": [],
     "columns": [
       "action",
-      "tun_config",
+      "mode",
       "adapter",
       "net"
     ],
@@ -31993,14 +31993,14 @@
   {
     "site": "v2ray",
     "name": "status",
-    "description": "查看 TUN 模式状态：guiNConfig.json 配置 + 虚拟网卡 + 网络连通性",
+    "description": "查看 VPN 状态：sing-box 路由模式 + TUN 网卡 + facebook 连通性",
     "access": "read",
     "domain": "localhost",
     "strategy": "local",
     "browser": false,
     "args": [],
     "columns": [
-      "tun_config",
+      "mode",
       "adapter",
       "net"
     ],
