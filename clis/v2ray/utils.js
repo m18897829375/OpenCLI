@@ -7,7 +7,6 @@ const API = 'http://127.0.0.1:10814';
 const DIR = join(homedir(), '.opencli', 'v2ray');
 const DETECT_PS1 = join(DIR, 'detect.ps1');
 
-// 确保检测脚本存在
 function ensureDetectScript() {
   if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true });
   if (!existsSync(DETECT_PS1)) {
@@ -20,34 +19,25 @@ if ($adapter) { Write-Output "$($adapter.Name)|$($adapter.Status)" }
   }
 }
 
-/** 调用 Clash API */
-function clashAPI(endpoint, method = 'GET', body = null) {
-  const url = `${API}${endpoint}`;
-  let cmd;
-  if (body) {
-    const json = JSON.stringify(body).replace(/"/g, '\\"');
-    cmd = `curl -s -X ${method} "${url}" -H "Content-Type: application/json" -d "${json}"`;
-  } else {
-    cmd = `curl -s -X ${method} "${url}"`;
-  }
-  const out = execSync(cmd, {
-    encoding: 'utf-8', timeout: 10000, stdio: 'pipe',
-  }).trim();
-  try { return JSON.parse(out); } catch { return null; }
+/** 调用 Clash API（用 fetch，无外部依赖） */
+async function clashAPI(endpoint, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(`${API}${endpoint}`, opts);
+    return await res.json();
+  } catch { return null; }
 }
 
-/** 获取当前路由模式 */
-export function getMode() {
-  const data = clashAPI('/configs');
+export async function getMode() {
+  const data = await clashAPI('/configs');
   return data?.mode || null;
 }
 
-/** 设置路由模式 */
-export function setMode(mode) {
-  clashAPI('/configs', 'PATCH', { mode });
+export async function setMode(mode) {
+  await clashAPI('/configs', 'PATCH', { mode });
 }
 
-/** 检测 TUN 网卡 */
 export function detectAdapter() {
   try {
     ensureDetectScript();
@@ -60,12 +50,11 @@ export function detectAdapter() {
   } catch { return null; }
 }
 
-/** 网络连通性测试 */
-export function testNet(url, timeoutSec = 5) {
+export async function testNet(url, timeoutMs = 5000) {
   try {
-    execSync(`curl -s --max-time ${timeoutSec} -o nul -w "%{http_code}" "${url}"`, {
-      encoding: 'utf-8', timeout: (timeoutSec + 2) * 1000, stdio: 'pipe',
-    });
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), timeoutMs);
+    await fetch(url, { signal: ctrl.signal });
     return { reachable: true };
   } catch { return { reachable: false }; }
 }
