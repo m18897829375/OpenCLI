@@ -31955,7 +31955,7 @@
   {
     "site": "v2ray",
     "name": "off",
-    "description": "关闭 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=false，不退出/重启 v2rayN 进程。v2rayN 检测到配置变更后自动停止 TUN 核心，恢复直连。",
+    "description": "关闭 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=false，不退出/重启 v2rayN。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31963,10 +31963,9 @@
     "args": [],
     "columns": [
       "action",
-      "tun_enabled",
-      "adapter_name",
-      "adapter_status",
-      "network_test"
+      "tun_config",
+      "adapter",
+      "net"
     ],
     "type": "js",
     "modulePath": "v2ray/off.js",
@@ -31975,7 +31974,7 @@
   {
     "site": "v2ray",
     "name": "on",
-    "description": "开启 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=true，不退出/重启 v2rayN 进程。v2rayN 检测到配置变更后自动重载 TUN 核心。",
+    "description": "开启 v2rayN TUN 模式。修改 guiNConfig.json 设置 EnableTun=true，不退出/重启 v2rayN。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31983,10 +31982,9 @@
     "args": [],
     "columns": [
       "action",
-      "tun_enabled",
-      "adapter_name",
-      "adapter_status",
-      "network_test"
+      "tun_config",
+      "adapter",
+      "net"
     ],
     "type": "js",
     "modulePath": "v2ray/on.js",
@@ -31995,18 +31993,16 @@
   {
     "site": "v2ray",
     "name": "status",
-    "description": "查看 v2rayN TUN 模式的当前状态。读取 guiNConfig.json 配置 + 检测虚拟网卡 + 测试网络连通性（facebook.com）",
+    "description": "查看 TUN 模式状态：guiNConfig.json 配置 + 虚拟网卡 + 网络连通性",
     "access": "read",
     "domain": "localhost",
     "strategy": "local",
     "browser": false,
     "args": [],
     "columns": [
-      "tun_enabled",
-      "config_path",
-      "adapter_name",
-      "adapter_status",
-      "network_test"
+      "tun_config",
+      "adapter",
+      "net"
     ],
     "type": "js",
     "modulePath": "v2ray/status.js",
