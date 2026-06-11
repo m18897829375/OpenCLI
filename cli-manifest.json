@@ -31955,7 +31955,7 @@
   {
     "site": "v2ray",
     "name": "off",
-    "description": "关闭 TUN 模式（禁用虚拟网卡，流量直连）。不重启 v2rayN。需要管理员终端。",
+    "description": "关闭代理路由（sing-box Clash API 切换为 Direct 模式，全部直连）。瞬时生效，无需管理员。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31963,8 +31963,9 @@
     "args": [],
     "columns": [
       "action",
-      "tun",
+      "mode",
       "adapter",
+      "singbox",
       "net"
     ],
     "type": "js",
@@ -31974,7 +31975,7 @@
   {
     "site": "v2ray",
     "name": "on",
-    "description": "开启 TUN 模式（启用虚拟网卡 + 重启 sing-box 恢复路由）。不退出 v2rayN。需要管理员终端。",
+    "description": "开启代理路由（sing-box Clash API 切换为 Rule 模式）。瞬时生效，无需管理员。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31982,8 +31983,9 @@
     "args": [],
     "columns": [
       "action",
-      "tun",
+      "mode",
       "adapter",
+      "singbox",
       "net"
     ],
     "type": "js",
@@ -31993,17 +31995,18 @@
   {
     "site": "v2ray",
     "name": "status",
-    "description": "查看 TUN 状态：网卡状态 + sing-box 进程 + 网络连通性",
+    "description": "查看代理状态：Clash 路由模式 + 网卡状态 + sing-box 进程 + 网络连通性",
     "access": "read",
     "domain": "localhost",
     "strategy": "local",
     "browser": false,
     "args": [],
     "columns": [
-      "tun",
+      "mode",
       "adapter",
       "singbox",
-      "net"
+      "net",
+      "v2rayn"
     ],
     "type": "js",
     "modulePath": "v2ray/status.js",
