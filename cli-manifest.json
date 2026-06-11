@@ -31955,7 +31955,7 @@
   {
     "site": "v2ray",
     "name": "off",
-    "description": "关闭 VPN 代理（切换 sing-box 路由模式为 Direct，所有流量直连）。不重启 v2rayN，即时生效。",
+    "description": "关闭 TUN 模式（禁用虚拟网卡，流量直连）。不重启 v2rayN。需要管理员终端。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31963,7 +31963,7 @@
     "args": [],
     "columns": [
       "action",
-      "mode",
+      "tun",
       "adapter",
       "net"
     ],
@@ -31974,7 +31974,7 @@
   {
     "site": "v2ray",
     "name": "on",
-    "description": "开启 VPN 代理（切换 sing-box 路由模式为 Rule）。不重启 v2rayN，即时生效。",
+    "description": "开启 TUN 模式（启用虚拟网卡 + 重启 sing-box 恢复路由）。不退出 v2rayN。需要管理员终端。",
     "access": "write",
     "domain": "localhost",
     "strategy": "local",
@@ -31982,7 +31982,7 @@
     "args": [],
     "columns": [
       "action",
-      "mode",
+      "tun",
       "adapter",
       "net"
     ],
@@ -31993,15 +31993,16 @@
   {
     "site": "v2ray",
     "name": "status",
-    "description": "查看 VPN 状态：sing-box 路由模式 + TUN 网卡 + facebook 连通性",
+    "description": "查看 TUN 状态：网卡状态 + sing-box 进程 + 网络连通性",
     "access": "read",
     "domain": "localhost",
     "strategy": "local",
     "browser": false,
     "args": [],
     "columns": [
-      "mode",
+      "tun",
       "adapter",
+      "singbox",
       "net"
     ],
     "type": "js",

@@ -1,12 +1,54 @@
 import { execSync } from 'node:child_process';
 
+// ====== PowerShell 执行器 ======
+
 /** 执行 PowerShell 命令，Base64 编码避免转义问题 */
 function ps(cmd) {
-  const enc = Buffer.from(cmd, 'utf16le').toString('base64');
+  const wrapped = `$ProgressPreference='SilentlyContinue';${cmd}`;
+  const enc = Buffer.from(wrapped, 'utf16le').toString('base64');
   return execSync(`powershell -NoProfile -EncodedCommand ${enc}`, {
     encoding: 'utf-8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
 }
+
+// ====== sing-box Clash API ======
+
+const CLASH_API = 'http://127.0.0.1:10814';
+
+/** 通过 sing-box Clash API 获取当前路由模式 */
+export async function getMode() {
+  try {
+    const res = await fetch(`${CLASH_API}/configs`, { signal: AbortSignal.timeout(3000) });
+    const data = await res.json();
+    return data.mode || null; // "Rule", "Direct", "Global"
+  } catch { return null; }
+}
+
+/** 通过 sing-box Clash API 切换路由模式 */
+export async function setMode(mode) {
+  // mode: "Rule" (走代理规则) | "Direct" (全部直连) | "Global" (全局代理)
+  const res = await fetch(`${CLASH_API}/configs`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode }),
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!res.ok) throw new Error(`API returned ${res.status}`);
+}
+
+// ====== v2rayN 进程 ======
+
+/** 检查 v2rayN 进程是否在运行 */
+export function isV2rayNRunning() {
+  try {
+    execSync('tasklist /fi "IMAGENAME eq v2rayN.exe" /nh 2>nul', {
+      encoding: 'utf-8', timeout: 5000, stdio: 'pipe',
+    });
+    return true;
+  } catch { return false; }
+}
+
+// ====== 网卡状态（诊断用）======
 
 /** 动态检测 TUN 网卡名 */
 export function findAdapter() {
@@ -35,24 +77,7 @@ if ($ip) { Write-Output $ip.IPAddress }
   } catch { return null; }
 }
 
-/** 启用 TUN 网卡 */
-export function enableAdapter() {
-  const name = findAdapter();
-  if (!name) throw new Error('未找到 TUN 虚拟网卡。请确认 v2rayN 正在运行且 TUN 模式已配置');
-  ps(`Enable-NetAdapter -Name '${name}' -Confirm:$false -ErrorAction Stop`);
-}
-
-/** 禁用 TUN 网卡 */
-export function disableAdapter() {
-  const name = findAdapter();
-  if (!name) throw new Error('未找到 TUN 虚拟网卡');
-  ps(`Disable-NetAdapter -Name '${name}' -Confirm:$false -ErrorAction Stop`);
-}
-
-/** 杀 sing-box（v2rayN 会自动重启它） */
-export function restartSingbox() {
-  ps("Stop-Process -Name 'sing-box' -Force -ErrorAction SilentlyContinue");
-}
+// ====== sing-box 进程 ======
 
 /** 检查 sing-box 是否在运行 */
 export function singboxRunning() {
@@ -64,7 +89,9 @@ export function singboxRunning() {
   } catch { return false; }
 }
 
-/** 网络连通性 */
+// ====== 网络连通性 ======
+
+/** 测试 HTTPS 连通性 */
 export async function testNet(url, timeoutMs = 5000) {
   try {
     const ctrl = new AbortController();

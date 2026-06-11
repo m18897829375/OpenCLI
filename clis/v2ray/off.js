@@ -1,31 +1,48 @@
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { ConfigError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { adapterStatus, disableAdapter, testNet } from './utils.js';
+import { isV2rayNRunning, getMode, setMode, adapterStatus, singboxRunning, testNet } from './utils.js';
 
 cli({
   site: 'v2ray', name: 'off', access: 'write',
-  description: '关闭 TUN 模式（禁用虚拟网卡，流量直连）。不重启 v2rayN。需要管理员终端。',
+  description: '关闭代理路由（sing-box Clash API 切换为 Direct 模式，全部直连）。瞬时生效，无需管理员。',
   domain: 'localhost', strategy: Strategy.LOCAL, browser: false, args: [],
-  columns: ['action', 'tun', 'adapter', 'net'],
+  columns: ['action', 'mode', 'adapter', 'singbox', 'net'],
   func: async () => {
     if (process.platform !== 'win32') throw new ConfigError('仅支持 Windows');
 
-    const before = adapterStatus();
-    if (!before) throw new CommandExecutionError('未找到 TUN 网卡，TUN 模式可能未开启');
-    if (before.status !== 'Up') {
-      return [{ action: 'already_off', tun: 'OFF', adapter: `${before.name}/${before.status}`, net: '—' }];
+    if (!isV2rayNRunning()) {
+      throw new CommandExecutionError('v2rayN 未运行', '请先启动 v2rayN');
     }
 
-    try { disableAdapter(); } catch (e) {
-      throw new CommandExecutionError(`禁用网卡失败: ${e.message}`, '请以管理员身份运行终端');
+    const currentMode = await getMode();
+    if (currentMode === null) {
+      throw new CommandExecutionError('无法连接 sing-box Clash API', '请确认 v2rayN 正在运行且 sing-box 已启动');
     }
 
-    const after = adapterStatus();
+    if (currentMode === 'Direct') {
+      const net = await testNet('https://www.baidu.com', 5000);
+      return [{
+        action: 'already_off',
+        mode: 'Direct',
+        adapter: '—',
+        singbox: '—',
+        net: net ? 'ok' : 'blocked',
+      }];
+    }
+
+    await setMode('Direct');
+
+    // 验证
+    const newMode = await getMode();
+    const ad = adapterStatus();
+    const sb = singboxRunning();
     const net = await testNet('https://www.baidu.com', 5000);
+
     return [{
-      action: 'off',
-      tun: after?.status === 'Up' ? 'ON' : 'OFF',
-      adapter: after ? `${after.name}/${after.status}` : 'gone',
+      action: newMode === 'Direct' ? 'off' : 'off_failed',
+      mode: newMode || '?',
+      adapter: ad ? `${ad.name}/${ad.status}` : '—',
+      singbox: sb ? 'running' : 'stopped',
       net: net ? 'ok' : 'blocked',
     }];
   },
