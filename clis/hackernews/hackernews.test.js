@@ -34,7 +34,7 @@ describe('hackernews listing adapters expose item id', () => {
     expect(cmd?.columns).toEqual(['rank', 'id', 'title', 'author', 'url']);
     expect(cmd?.pipeline?.[5]?.map).toMatchObject({
       id: '${{ item.id }}',
-      url: '${{ item.url }}',
+      url: '${{ item.url || `https://news.ycombinator.com/item?id=${item.id}` }}',
     });
   });
 
